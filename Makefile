@@ -122,11 +122,11 @@ info:
 
 lint:
 	@echo "Running ruff check..."
-	ruff check .
+	$(PYTHON) -m ruff check .
 	@echo "Running ruff format..."
-	ruff format .
+	$(PYTHON) -m ruff format .
 
 typecheck:
 	@echo "Running pyright type checking..."
-	pyright --project pyrightconfig.json
+	$(PYTHON) -m pyright --project pyrightconfig.json
 
