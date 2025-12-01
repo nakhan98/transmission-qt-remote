@@ -5,8 +5,8 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtCore import QEvent, QPoint, QSize, Qt, QTimer
+from PySide6.QtGui import QAction, QIcon, QShowEvent
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,

@@ -2,7 +2,7 @@ import logging
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 
 if TYPE_CHECKING:
     from ..main_window import TorrentStatus

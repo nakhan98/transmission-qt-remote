@@ -12,8 +12,8 @@ try:
     from PySide6.QtGui import QHelpEvent
     from PySide6.QtWidgets import (
         QAbstractItemView,
-        QStyleOptionViewItem,
         QStyledItemDelegate,
+        QStyleOptionViewItem,
         QToolTip,
         QWidget,
     )
