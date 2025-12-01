@@ -51,7 +51,7 @@ except Exception as e:
 
 
 # Custom Delegate for showing tooltips on table cells
-if _HAS_QT:
+if _has_qt:
 
     class TooltipDelegate(QStyledItemDelegate):
         def __init__(self, parent=None):

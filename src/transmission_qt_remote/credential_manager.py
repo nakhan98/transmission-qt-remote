@@ -21,13 +21,6 @@ except ImportError:
     # Create a custom exception class for password delete errors
     class PasswordDeleteError(Exception):
         pass
-except ImportError:
-    keyring = None
-    has_keyring = False
-
-    # Create a custom exception class for password delete errors
-    class PasswordDeleteError(Exception):
-        pass
 
 
 logger = logging.getLogger(__name__)
