@@ -1,5 +1,16 @@
 # AGENTS.md
 
+> **⚠️ INTERNAL DEVELOPMENT WORKFLOW**
+> 
+> This file documents AI-assisted development practices and internal tooling
+> used in this project. It is **not** a contribution guide for external contributors.
+> 
+> **For contributing to this project, please see CONTRIBUTING.md** (when available)
+> or refer to the README.md for getting started.
+> 
+> The workflows described here reference git-ignored files (`.tmp/`) and 
+> AI agent tooling that are part of the maintainer's development environment.
+
 ## Spec-driven Development
 
 This repository uses spec-driven development to keep feature and bug work
@@ -126,7 +137,7 @@ Firstly please check README.md
 
 ### Development Standards
 - Commit messages should be concise and follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).
-- TODO: `.tmp/` is a local development scratch space that is git ignored.
+- `.tmp/` is a local development scratch space that is git ignored.
 - Regularly run unit tests to ensure functionality has not been compromised
   during feature development and bug fixing.
 - For new feature try to create appropriate unit and/or integration tests.
