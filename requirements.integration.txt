@@ -9,5 +9,8 @@ IP2Location==8.10.0
 commentjson==0.9.0
 lark
 PySide6==6.8.0.2
+PySide6-stubs
 pytest-qt==4.5.0
 qdarkstyle
+pyright
+ruff

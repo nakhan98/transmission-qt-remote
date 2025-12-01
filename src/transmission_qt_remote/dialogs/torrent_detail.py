@@ -1,8 +1,11 @@
 import logging
 import time
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from PySide6.QtCore import Qt
+
+if TYPE_CHECKING:
+    from ..main_window import TorrentStatus
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
@@ -18,7 +21,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..main_window import TorrentStatus
+from ..main_window import TorrentStatus  # type: ignore[import-cycle]
 from .utils import TooltipDelegate, get_country_info
 
 logger = logging.getLogger(__name__)
@@ -331,7 +334,7 @@ class TorrentDetailDialog(QDialog):
 
         return total_size, total_progress, file_count
 
-    def _show_files_context_menu(self, position) -> None:
+    def _show_files_context_menu(self, position: "QPoint") -> None:  # type: ignore[name-defined]
         """Show context menu for files tree widget.
 
         Args:
@@ -473,7 +476,9 @@ class TorrentDetailDialog(QDialog):
         """
 
         # Find the tree item for this file
-        def find_item_by_path(parent, target_path):
+        def find_item_by_path(
+            parent: "QTreeWidgetItem", target_path: str
+        ) -> "Optional[QTreeWidgetItem]":  # type: ignore[name-defined]
             for i in range(parent.childCount()):
                 child = parent.child(i)
                 item_path = self._get_item_file_path(child)

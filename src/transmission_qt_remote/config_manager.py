@@ -33,7 +33,7 @@ class ConfigManager:
 
     SUPPORTED_EXTENSIONS = {".json", ".jsonc", ".yaml", ".yml"}
 
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # type: ignore[reportMissingSuperCall]
         self._config: Dict[str, Any] = {}
         self._config_file_path: Optional[Path] = None
         self._load_config()

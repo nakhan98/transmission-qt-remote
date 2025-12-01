@@ -61,7 +61,7 @@ class CredentialManager:
             return False
 
         try:
-            keyring.set_password(CredentialManager.SERVICE_NAME, username, password)
+            keyring.set_password(CredentialManager.SERVICE_NAME, username, password)  # type: ignore[union-attr]
             logger.info(f"Credentials stored securely for user: {username}")
             return True
         except Exception as e:
@@ -84,7 +84,7 @@ class CredentialManager:
             return None
 
         try:
-            password = keyring.get_password(CredentialManager.SERVICE_NAME, username)
+            password = keyring.get_password(CredentialManager.SERVICE_NAME, username)  # type: ignore[union-attr]
             if password:
                 logger.info(f"Credentials retrieved for user: {username}")
             else:
@@ -110,7 +110,7 @@ class CredentialManager:
             return False
 
         try:
-            keyring.delete_password(CredentialManager.SERVICE_NAME, username)
+            keyring.delete_password(CredentialManager.SERVICE_NAME, username)  # type: ignore[union-attr]
             logger.info(f"Credentials deleted for user: {username}")
             return True
         except PasswordDeleteError:

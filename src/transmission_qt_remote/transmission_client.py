@@ -35,10 +35,10 @@ except ImportError:
 # Conditionally import Qt-dependent modules
 if _has_qt:
     from .dialogs.torrent_detail import (
-        TorrentDetailDialog,  # noqa: F401 - re-exported for backward compatibility
+        TorrentDetailDialog,  # type: ignore  # noqa: F401 - re-exported for backward compatibility
     )
-    from .main_window import (  # noqa: F401 - re-exported for backward compatibility
-        TrackerButton,
+    from .main_window import (  # type: ignore  # noqa: F401 - re-exported for backward compatibility
+        TrackerButton,  # type: ignore
         TransmissionClient,
     )
 else:
@@ -47,7 +47,7 @@ else:
     TransmissionClient = None
 
 from .dialogs.utils import (
-    get_country_info,  # noqa: F401 - re-exported for backward compatibility
+    get_country_info,  # type: ignore  # noqa: F401 - re-exported for backward compatibility
 )
 
 logging.basicConfig(
@@ -113,8 +113,8 @@ def extract_hostname(url: str) -> str:
 
 def main():
     """Main entry point for the application."""
-    app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(QPixmap(ICON_FILE)))
-    client = TransmissionClient()
-    client.show()
-    sys.exit(app.exec())
+    app = QApplication(sys.argv)  # type: ignore[union-attr]
+    app.setWindowIcon(QIcon(QPixmap(ICON_FILE)))  # type: ignore[union-attr]
+    client = TransmissionClient()  # type: ignore[union-attr]
+    client.show()  # type: ignore[union-attr]
+    sys.exit(app.exec())  # type: ignore[union-attr]

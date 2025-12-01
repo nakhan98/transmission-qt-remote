@@ -416,7 +416,9 @@ class TransmissionClient(QMainWindow):
 
         QApplication.quit()
 
-    def _on_tray_icon_activated(self, reason) -> None:
+    def _on_tray_icon_activated(
+        self, reason: "QSystemTrayIcon.ActivationReason"
+    ) -> None:  # type: ignore[name-defined]
         """Handle tray icon activation (double-click, etc.)."""
         if reason == QSystemTrayIcon.DoubleClick:
             self._toggle_window_visibility()
@@ -426,13 +428,13 @@ class TransmissionClient(QMainWindow):
         if hasattr(self, "tray_icon"):
             self.tray_icon.setToolTip(tooltip)
 
-    def showEvent(self, event):
+    def showEvent(self, event: "QShowEvent") -> None:  # type: ignore[name-defined]
         """Handle window show event."""
         super().showEvent(event)
         # Attempt auto-connect after window is shown and Qt event loop is running
         QTimer.singleShot(100, self._attempt_auto_connect)
 
-    def changeEvent(self, event):
+    def changeEvent(self, event: "QEvent") -> None:  # type: ignore[name-defined]
         """Handle window state changes like minimization/restoration."""
         super().changeEvent(event)
         if event.type() == QEvent.WindowStateChange:
@@ -1394,7 +1396,7 @@ class TransmissionClient(QMainWindow):
                 self.current_password,
                 refresh_interval_sec,
                 minimized_interval_sec,
-                connection_timeout_sec,
+                _connection_timeout_sec,
                 self.credentials_remembered,
                 auto_connect_enabled,
             ) = dialog.get_settings()
@@ -1422,7 +1424,7 @@ class TransmissionClient(QMainWindow):
                 if self.is_connected:
                     self.set_timer_interval()
 
-    def _show_torrent_context_menu(self, position) -> None:
+    def _show_torrent_context_menu(self, position: "QPoint") -> None:  # type: ignore[name-defined]
         """Show right-click context menu for torrent actions."""
         # Get the torrent at the clicked position
         item = self.table.itemAt(position)
