@@ -1,0 +1,8 @@
+{
+  "lsp": {
+    "pyright": {
+      "disabled": true
+    }
+  },
+  "$schema": "https://opencode.ai/config.json"
+}

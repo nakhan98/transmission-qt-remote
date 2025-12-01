@@ -1,0 +1,46 @@
+# Use unit test image as base to avoid rebuilding Python environment
+FROM transmission-qt-test-unit:latest
+
+# Install additional system packages for PySide6
+RUN apt-get update && apt-get install -y \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libxkbcommon-x11-0 \
+    libdbus-1-3 \
+    libglib2.0-0 \
+    libegl1 \
+    libgl1 \
+    libgles2 \
+    libfontconfig1 \
+    libfreetype6 \
+    libx11-xcb1 \
+    libxcb-glx0 \
+    xvfb \
+    make \
+    curl \
+    unzip \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install additional GUI dependencies for integration tests
+COPY requirements.integration.txt .
+RUN pip install --no-cache-dir -r requirements.integration.txt
+
+# Download IP2Location database
+RUN echo "Downloading IP2Location LITE database..." && \
+    curl -L -o IP2LOCATION-LITE-DB1.BIN.ZIP "https://download.ip2location.com/lite/IP2LOCATION-LITE-DB1.BIN.ZIP" && \
+    echo "Extracting database file..." && \
+    unzip -o IP2LOCATION-LITE-DB1.BIN.ZIP IP2LOCATION-LITE-DB1.BIN && \
+    rm IP2LOCATION-LITE-DB1.BIN.ZIP && \
+    echo "IP2Location database downloaded successfully to IP2LOCATION-LITE-DB1.BIN"
+
+# Set up environment for headless QT testing
+ENV QT_QPA_PLATFORM=offscreen
+
+# Default command runs integration tests
+CMD ["python", "-m", "pytest", "tests/integration/", "-v"]
