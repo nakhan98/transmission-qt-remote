@@ -1,0 +1,12 @@
+PySide6==6.8.0.2
+requests==2.32.3
+python-dotenv==1.0.1
+pytest==8.3.4
+pytest-cov==4.1.0
+pytest-qt==4.5.0
+coverage==7.2.0
+IP2Location==8.10.0
+qdarkstyle
+keyring==25.7.0
+PyYAML==6.0.1
+commentjson==0.9.0

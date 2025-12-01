@@ -1,0 +1,25 @@
+.venv/
+*~
+.*~
+.*.sw*
+.env*
+__pycache__/
+.aider*
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# IP2Location database file (should be downloaded separately)
+IP2LOCATION-LITE-DB1.BIN
+
+# Python envs
+.venv*
+
+# Python package metadata
+*.egg-info/
+
+# Dev scratch space
+.tmp/
+
+config.json
