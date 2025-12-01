@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pyright
-          pip install -r requirements.unit.txt
+          pip install -r requirements.integration.txt
 
       - name: Run type checking
         run: make typecheck
