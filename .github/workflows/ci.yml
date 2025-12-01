@@ -17,6 +17,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y make
+
       - name: Install dependencies
         run: pip install ruff
 
@@ -33,8 +36,13 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y make
+
       - name: Install dependencies
-        run: pip install pyright
+        run: |
+          pip install pyright
+          pip install -r requirements.unit.txt
 
       - name: Run type checking
         run: make typecheck
@@ -48,6 +56,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y make
 
       - name: Install dependencies
         run: pip install -r requirements.unit.txt
