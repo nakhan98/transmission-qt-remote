@@ -20,23 +20,20 @@ import sys
 
 from dotenv import load_dotenv
 
-try:
-    import qdarkstyle  # For dark theme stylesheet
-except ImportError:
-    qdarkstyle = None
+# qdarkstyle import removed - not used in this file
 
 # Conditionally import Qt components
 try:
     from PySide6.QtGui import QIcon, QPixmap
     from PySide6.QtWidgets import QApplication
 
-    _HAS_QT = True
+    _has_qt = True
 except ImportError:
     QIcon = QPixmap = QApplication = None
-    _HAS_QT = False
+    _has_qt = False
 
 # Conditionally import Qt-dependent modules
-if _HAS_QT:
+if _has_qt:
     from .dialogs.torrent_detail import (
         TorrentDetailDialog,  # noqa: F401 - re-exported for backward compatibility
     )

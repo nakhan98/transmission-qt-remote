@@ -15,17 +15,15 @@ __license__ = "GPL-3.0"
 try:
     from .main_window import TransmissionClient
 
-    _HAS_QT = True
+    _has_qt = True
 except ImportError:
     TransmissionClient = None
-    _HAS_QT = False
+    _has_qt = False
 
 from .transmission_client import (
     APP_NAME,
     ICON_FILE,
     extract_hostname,
-    load_dotenv,
-    logging,
 )
 
 # Conditionally include GUI components in exports
@@ -38,5 +36,5 @@ __all__ = [
     "__license__",
 ]
 
-if _HAS_QT:
+if _has_qt:
     __all__.append("TransmissionClient")

@@ -6,15 +6,12 @@ try:
     from PySide6.QtCore import QEvent, Qt
     from PySide6.QtWidgets import QStyledItemDelegate, QToolTip
 
-    _HAS_QT = True
+    _has_qt = True
 except ImportError:
     QEvent = Qt = QStyledItemDelegate = QToolTip = None
-    _HAS_QT = False
+    _has_qt = False
 
-try:
-    import qdarkstyle  # For dark theme stylesheet
-except ImportError:
-    qdarkstyle = None
+# qdarkstyle import removed - not used in this file
 
 from IP2Location import database as ip2location
 
