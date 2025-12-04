@@ -38,7 +38,7 @@ class TestConfigManager:
 
         # Should include XDG config directory if set
         if os.getenv("XDG_CONFIG_HOME"):
-            assert any("transmission_test_qt_client" in str(p) for p in paths)
+            assert any("transmission_qt_remote" in str(p) for p in paths)
 
     def test_find_config_file_priority(self):
         """Test config file discovery with priority."""
