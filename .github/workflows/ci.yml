@@ -70,7 +70,26 @@ jobs:
           python-version: '3.12'
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y make
+        run: |
+          sudo apt-get update && sudo apt-get install -y make \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-xinerama0 \
+            libxcb-xkb1 \
+            libxkbcommon-x11-0 \
+            libdbus-1-3 \
+            libglib2.0-0 \
+            libegl1 \
+            libgl1 \
+            libgles2 \
+            libfontconfig1 \
+            libfreetype6 \
+            libx11-xcb1 \
+            libxcb-glx0 \
+            xvfb
 
       - name: Install uv
         run: pip install uv
