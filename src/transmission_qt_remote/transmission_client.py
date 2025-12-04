@@ -17,6 +17,8 @@ Environment variables:
 import logging
 import os
 import sys
+from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -24,12 +26,12 @@ from dotenv import load_dotenv
 
 # Conditionally import Qt components
 try:
-    from PySide6.QtGui import QIcon, QPixmap
+    from PySide6.QtGui import QIcon
     from PySide6.QtWidgets import QApplication
 
     _has_qt = True
 except ImportError:
-    QIcon = QPixmap = QApplication = None
+    QIcon = QApplication = None
     _has_qt = False
 
 # Conditionally import Qt-dependent modules
@@ -46,6 +48,7 @@ else:
     TrackerButton = None
     TransmissionClient = None
 
+from .config import APP_NAME, ICON_FILE
 from .dialogs.utils import (
     get_country_info,  # type: ignore  # noqa: F401 - re-exported for backward compatibility
 )
@@ -67,9 +70,26 @@ REFRESH_INTERVAL = 5000  # Default interval when the window is visible
 MINIMIZED_REFRESH_INTERVAL = 30000  # Default interval when the window is minimized
 
 
-# TODO: Are these 2 global variable still needed? I see them in config.py too
-APP_NAME = "Transmission QT Remote"
-ICON_FILE = "./black_t.svg"
+def _resolve_icon_path(icon_file: str) -> Optional[str]:
+    """Resolve the icon path across editable and installed environments."""
+    candidate = Path(icon_file)
+    candidate_paths = [candidate]
+
+    if not candidate.is_absolute():
+        candidate_paths.append(Path.cwd() / candidate)
+        module_path = Path(__file__).resolve()
+        for parent in module_path.parents:
+            candidate_paths.append(parent / candidate)
+
+    for path in candidate_paths:
+        if path.exists():
+            return str(path)
+
+    logging.warning("Icon file %s not found; using default Qt icon", icon_file)
+    return None
+
+
+ICON_PATH = _resolve_icon_path(ICON_FILE)
 
 
 def extract_hostname(url: str) -> str:
@@ -114,7 +134,17 @@ def extract_hostname(url: str) -> str:
 def main():
     """Main entry point for the application."""
     app = QApplication(sys.argv)  # type: ignore[union-attr]
-    app.setWindowIcon(QIcon(QPixmap(ICON_FILE)))  # type: ignore[union-attr]
+    app.setApplicationName(APP_NAME)
+    app.setApplicationDisplayName(APP_NAME)
+    app.setOrganizationName("TransmissionQtRemote")
+    app.setOrganizationDomain("transmissionqtremote.dev")
+
+    icon = QIcon(ICON_PATH) if ICON_PATH and QIcon is not None else None
+    if icon is not None and not icon.isNull():
+        app.setWindowIcon(icon)
+
     client = TransmissionClient()  # type: ignore[union-attr]
+    if icon is not None and not icon.isNull():
+        client.setWindowIcon(icon)
     client.show()  # type: ignore[union-attr]
     sys.exit(app.exec())  # type: ignore[union-attr]

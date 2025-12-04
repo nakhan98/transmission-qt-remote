@@ -289,6 +289,7 @@ class TransmissionClient(QMainWindow):
         self.current_url = TRANSMISSION_URL
         self.is_connected: bool = False
         self.timer: QTimer = QTimer()
+        self.timer.timeout.connect(self.refresh_data)
 
         # Load credentials with enhanced fallback logic
         self.current_credentials_enabled = False
@@ -686,6 +687,7 @@ class TransmissionClient(QMainWindow):
             self._update_last_connected_server(url)
 
             self.refresh_data()  # Start data refresh
+            self.set_timer_interval()  # Set and start the refresh timer
             logging.info("Connected to Transmission server: %s", url)
         else:
             QMessageBox.warning(self, "Connection Failed", message)
@@ -778,6 +780,7 @@ class TransmissionClient(QMainWindow):
             self._update_last_connected_server(url)
 
             self.refresh_data()  # Start data refresh
+            self.set_timer_interval()  # Set and start the refresh timer
             logging.info("Auto-connected to Transmission server: %s", url)
         else:
             logging.warning(
@@ -1157,7 +1160,7 @@ class TransmissionClient(QMainWindow):
             return "Unknown"
 
     def set_timer_interval(self) -> None:
-        """Set timer interval based on window minimization state."""
+        """Set timer interval based on window minimization state and start if connected."""
         # Use appropriate interval based on window state
         interval = (
             self.minimized_refresh_interval_ms
@@ -1165,6 +1168,8 @@ class TransmissionClient(QMainWindow):
             else self.refresh_interval_ms
         )
         self.timer.setInterval(interval)
+        if self.is_connected and not self.timer.isActive():
+            self.timer.start()
         logger.info(
             f"Refresh interval set to {interval}ms ({'minimized' if self.windowState() & Qt.WindowMinimized else 'normal'} mode)"
         )
