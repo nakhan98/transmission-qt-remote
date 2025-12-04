@@ -20,8 +20,14 @@ jobs:
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y make
 
+      - name: Install uv
+        run: pip install uv
+
+      - name: Set up virtual environment
+        run: make setup_venv
+
       - name: Install dependencies
-        run: pip install ruff
+        run: make install
 
       - name: Run linting
         run: make lint
@@ -39,10 +45,16 @@ jobs:
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y make
 
+      - name: Install uv
+        run: pip install uv
+
+      - name: Set up virtual environment
+        run: make setup_venv
+
       - name: Install dependencies
         run: |
-          pip install pyright PySide6-stubs
-          pip install -r requirements.integration.txt
+          make install
+          .venv.Linux_x86_64/bin/pip install pyright PySide6-stubs
 
       - name: Run type checking
         run: make typecheck
@@ -60,8 +72,16 @@ jobs:
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y make
 
+      - name: Install uv
+        run: pip install uv
+
+      - name: Set up virtual environment
+        run: make setup_venv
+
       - name: Install dependencies
-        run: pip install -r requirements.unit.txt
+        run: |
+          make install
+          .venv.Linux_x86_64/bin/pip install -r requirements.unit.txt
 
       - name: Run Unit Tests
         run: make test_unit
