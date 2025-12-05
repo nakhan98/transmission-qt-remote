@@ -5,7 +5,7 @@ A graphical user interface for interacting with Transmission torrent servers.
 Built with PySide6 for cross-platform compatibility.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Nasef Khan"
 __email__ = "nakhan98@gmail.com"
 __license__ = "GPL-3.0"
