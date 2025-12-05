@@ -12,18 +12,18 @@ class TestCredentialManager:
 
     def test_is_available_with_keyring(self):
         """Test that is_available returns True when keyring is available."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             assert CredentialManager.is_available() is True
 
     def test_is_available_without_keyring(self):
         """Test that is_available returns False when keyring is not available."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", False):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", False):
             assert CredentialManager.is_available() is False
 
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_set_credentials_success(self, mock_keyring):
         """Test successful credential storage."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.set_password.return_value = None
 
             result = CredentialManager.set_credentials("testuser", "testpass")
@@ -36,7 +36,7 @@ class TestCredentialManager:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_set_credentials_failure(self, mock_keyring):
         """Test credential storage failure."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.set_password.side_effect = Exception("Storage failed")
 
             result = CredentialManager.set_credentials("testuser", "testpass")
@@ -45,7 +45,7 @@ class TestCredentialManager:
 
     def test_set_credentials_no_keyring(self):
         """Test credential storage when keyring is not available."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", False):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", False):
             result = CredentialManager.set_credentials("testuser", "testpass")
 
             assert result is False
@@ -53,7 +53,7 @@ class TestCredentialManager:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_get_credentials_success(self, mock_keyring):
         """Test successful credential retrieval."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.get_password.return_value = "retrieved_password"
 
             result = CredentialManager.get_credentials("testuser")
@@ -66,7 +66,7 @@ class TestCredentialManager:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_get_credentials_not_found(self, mock_keyring):
         """Test credential retrieval when credentials don't exist."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.get_password.return_value = None
 
             result = CredentialManager.get_credentials("testuser")
@@ -76,7 +76,7 @@ class TestCredentialManager:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_get_credentials_failure(self, mock_keyring):
         """Test credential retrieval failure."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.get_password.side_effect = Exception("Retrieval failed")
 
             result = CredentialManager.get_credentials("testuser")
@@ -85,7 +85,7 @@ class TestCredentialManager:
 
     def test_get_credentials_no_keyring(self):
         """Test credential retrieval when keyring is not available."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", False):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", False):
             result = CredentialManager.get_credentials("testuser")
 
             assert result is None
@@ -93,7 +93,7 @@ class TestCredentialManager:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_has_credentials_false(self, mock_keyring):
         """Test has_credentials returns False when credentials don't exist."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.get_password.return_value = None
 
             result = CredentialManager.has_credentials("testuser")
@@ -195,7 +195,7 @@ class TestConnectionSettingsCredentialSaving:
         self, mock_password_delete_error, mock_keyring
     ):
         """Test credential deletion when credentials don't exist."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.delete_password.side_effect = mock_password_delete_error(
                 "Not found"
             )
@@ -207,7 +207,7 @@ class TestConnectionSettingsCredentialSaving:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_delete_credentials_failure(self, mock_keyring):
         """Test credential deletion failure."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             # Use a different exception type than PasswordDeleteError
             mock_keyring.delete_password.side_effect = RuntimeError("Deletion failed")
 
@@ -217,7 +217,7 @@ class TestConnectionSettingsCredentialSaving:
 
     def test_delete_credentials_no_keyring(self):
         """Test credential deletion when keyring is not available."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", False):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", False):
             result = CredentialManager.delete_credentials("testuser")
 
             assert result is False
@@ -225,7 +225,7 @@ class TestConnectionSettingsCredentialSaving:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_has_credentials_true(self, mock_keyring):
         """Test has_credentials returns True when credentials exist."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.get_password.return_value = "password"
 
             result = CredentialManager.has_credentials("testuser")
@@ -235,7 +235,7 @@ class TestConnectionSettingsCredentialSaving:
     @patch("transmission_qt_remote.credential_manager.keyring")
     def test_has_credentials_false(self, mock_keyring):
         """Test has_credentials returns False when credentials don't exist."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", True):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", True):
             mock_keyring.get_password.return_value = None
 
             result = CredentialManager.has_credentials("testuser")
@@ -244,7 +244,7 @@ class TestConnectionSettingsCredentialSaving:
 
     def test_has_credentials_no_keyring(self):
         """Test has_credentials when keyring is not available."""
-        with patch("transmission_qt_remote.credential_manager.HAS_KEYRING", False):
+        with patch("transmission_qt_remote.credential_manager.has_keyring", False):
             result = CredentialManager.has_credentials("testuser")
 
             assert result is False
