@@ -11,18 +11,12 @@ from typing import Optional
 
 try:
     import keyring
+    from keyring.errors import PasswordDeleteError
 
-    HAS_KEYRING = True
-    # Import keyring errors for exception handling
-    try:
-        from keyring.errors import PasswordDeleteError
-    except ImportError:
-        # Create a custom exception class for password delete errors
-        class PasswordDeleteError(Exception):
-            pass
+    has_keyring = True
 except ImportError:
     keyring = None
-    HAS_KEYRING = False
+    has_keyring = False
 
     # Create a custom exception class for password delete errors
     class PasswordDeleteError(Exception):
@@ -48,7 +42,7 @@ class CredentialManager:
     @staticmethod
     def is_available() -> bool:
         """Check if secure credential storage is available on this platform."""
-        return HAS_KEYRING
+        return has_keyring
 
     @staticmethod
     def set_credentials(username: str, password: str) -> bool:
@@ -62,12 +56,12 @@ class CredentialManager:
         Returns:
             True if credentials were stored successfully, False otherwise
         """
-        if not HAS_KEYRING:
+        if not has_keyring:
             logger.warning("Keyring not available - cannot store credentials securely")
             return False
 
         try:
-            keyring.set_password(CredentialManager.SERVICE_NAME, username, password)
+            keyring.set_password(CredentialManager.SERVICE_NAME, username, password)  # type: ignore[union-attr]
             logger.info(f"Credentials stored securely for user: {username}")
             return True
         except Exception as e:
@@ -85,12 +79,12 @@ class CredentialManager:
         Returns:
             Password if found, None if not found or on error
         """
-        if not HAS_KEYRING:
+        if not has_keyring:
             logger.warning("Keyring not available - cannot retrieve credentials")
             return None
 
         try:
-            password = keyring.get_password(CredentialManager.SERVICE_NAME, username)
+            password = keyring.get_password(CredentialManager.SERVICE_NAME, username)  # type: ignore[union-attr]
             if password:
                 logger.info(f"Credentials retrieved for user: {username}")
             else:
@@ -111,12 +105,12 @@ class CredentialManager:
         Returns:
             True if credentials were deleted successfully, False otherwise
         """
-        if not HAS_KEYRING:
+        if not has_keyring:
             logger.warning("Keyring not available - cannot delete credentials")
             return False
 
         try:
-            keyring.delete_password(CredentialManager.SERVICE_NAME, username)
+            keyring.delete_password(CredentialManager.SERVICE_NAME, username)  # type: ignore[union-attr]
             logger.info(f"Credentials deleted for user: {username}")
             return True
         except PasswordDeleteError:
