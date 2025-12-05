@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "transmissionqtremote"
-version = "0.1.0"
+version = "0.2.0"
 description = "A graphical user interface for interacting with Transmission torrent servers"
 readme = "README.md"
 license = {text = "GPL-3.0"}
