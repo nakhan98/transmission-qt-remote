@@ -472,7 +472,7 @@ class ConnectionSettingsDialog(QDialog):
             self,
             "Delete Server",
             f"Are you sure you want to delete the server '{server_name}'?\n\n"
-            "This action cannot be undone.",
+            + "This action cannot be undone.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
