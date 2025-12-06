@@ -144,4 +144,4 @@ Firstly please check README.md
 
 ### Other
 - A copy of the the [Transmission RPC spec](https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md)
-  can be found at `.tmp/rpc-spec.md` (retrieved 28-11-2026).
+  can be found at `.tmp/docs/rpc-spec.md` (retrieved 28-11-2026).

@@ -1,20 +1,39 @@
 import logging
 import os
-from typing import Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
+
+if TYPE_CHECKING:
+    from PySide6.QtCore import QModelIndex
+    from PySide6.QtGui import QHelpEvent
+    from PySide6.QtWidgets import QAbstractItemView, QStyleOptionViewItem, QWidget
 
 try:
-    from PySide6.QtCore import QEvent, Qt
-    from PySide6.QtWidgets import QStyledItemDelegate, QToolTip
+    from PySide6.QtCore import QEvent, QModelIndex, Qt
+    from PySide6.QtGui import QHelpEvent
+    from PySide6.QtWidgets import (
+        QAbstractItemView,
+        QStyledItemDelegate,
+        QStyleOptionViewItem,
+        QToolTip,
+        QWidget,
+    )
 
-    _HAS_QT = True
+    _has_qt = True
 except ImportError:
-    QEvent = Qt = QStyledItemDelegate = QToolTip = None
-    _HAS_QT = False
+    (
+        QEvent,
+        QModelIndex,
+        Qt,
+        QHelpEvent,
+        QAbstractItemView,
+        QStyleOptionViewItem,
+        QStyledItemDelegate,
+        QToolTip,
+        QWidget,
+    ) = (None,) * 9
+    _has_qt = False
 
-try:
-    import qdarkstyle  # For dark theme stylesheet
-except ImportError:
-    qdarkstyle = None
+# qdarkstyle import removed - not used in this file
 
 from IP2Location import database as ip2location
 
@@ -54,25 +73,31 @@ except Exception as e:
 
 
 # Custom Delegate for showing tooltips on table cells
-if _HAS_QT:
+if _has_qt:
 
-    class TooltipDelegate(QStyledItemDelegate):
-        def __init__(self, parent=None):
+    class TooltipDelegate(QStyledItemDelegate):  # type: ignore[misc]
+        def __init__(self, parent: "Optional[QWidget]" = None) -> None:  # type: ignore[name-defined]
             super().__init__(parent)
 
-        def helpEvent(self, event, view, option, index):
+        def helpEvent(
+            self,
+            event,  # type: QHelpEvent
+            view,  # type: QAbstractItemView
+            option,  # type: QStyleOptionViewItem
+            index,  # type: QModelIndex
+        ) -> bool:  # type: ignore[override]
             if not event or not view:
                 return False
 
-            if event.type() == QEvent.ToolTip:
-                tooltip = index.data(Qt.ToolTipRole)
+            if event.type() == QEvent.ToolTip:  # type: ignore[union-attr]
+                tooltip = index.data(Qt.ToolTipRole)  # type: ignore[union-attr]
                 if tooltip:
-                    QToolTip.showText(event.globalPos(), tooltip, view)
+                    QToolTip.showText(event.globalPos(), tooltip, view)  # type: ignore[union-attr]
                     return True
 
             return super().helpEvent(event, view, option, index)
 else:
-    TooltipDelegate = None
+    TooltipDelegate = None  # type: ignore[assignment,misc]
 
 
 # Function to get country code from IP address

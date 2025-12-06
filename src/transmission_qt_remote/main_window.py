@@ -5,8 +5,8 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtCore import QEvent, QPoint, QSize, Qt, QTimer
+from PySide6.QtGui import QAction, QIcon, QShowEvent
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
@@ -289,6 +289,7 @@ class TransmissionClient(QMainWindow):
         self.current_url = TRANSMISSION_URL
         self.is_connected: bool = False
         self.timer: QTimer = QTimer()
+        self.timer.timeout.connect(self.refresh_data)
 
         # Load credentials with enhanced fallback logic
         self.current_credentials_enabled = False
@@ -416,7 +417,9 @@ class TransmissionClient(QMainWindow):
 
         QApplication.quit()
 
-    def _on_tray_icon_activated(self, reason) -> None:
+    def _on_tray_icon_activated(
+        self, reason: "QSystemTrayIcon.ActivationReason"
+    ) -> None:  # type: ignore[name-defined]
         """Handle tray icon activation (double-click, etc.)."""
         if reason == QSystemTrayIcon.DoubleClick:
             self._toggle_window_visibility()
@@ -426,13 +429,13 @@ class TransmissionClient(QMainWindow):
         if hasattr(self, "tray_icon"):
             self.tray_icon.setToolTip(tooltip)
 
-    def showEvent(self, event):
+    def showEvent(self, event: "QShowEvent") -> None:  # type: ignore[name-defined]
         """Handle window show event."""
         super().showEvent(event)
         # Attempt auto-connect after window is shown and Qt event loop is running
         QTimer.singleShot(100, self._attempt_auto_connect)
 
-    def changeEvent(self, event):
+    def changeEvent(self, event: "QEvent") -> None:  # type: ignore[name-defined]
         """Handle window state changes like minimization/restoration."""
         super().changeEvent(event)
         if event.type() == QEvent.WindowStateChange:
@@ -684,6 +687,7 @@ class TransmissionClient(QMainWindow):
             self._update_last_connected_server(url)
 
             self.refresh_data()  # Start data refresh
+            self.set_timer_interval()  # Set and start the refresh timer
             logging.info("Connected to Transmission server: %s", url)
         else:
             QMessageBox.warning(self, "Connection Failed", message)
@@ -776,6 +780,7 @@ class TransmissionClient(QMainWindow):
             self._update_last_connected_server(url)
 
             self.refresh_data()  # Start data refresh
+            self.set_timer_interval()  # Set and start the refresh timer
             logging.info("Auto-connected to Transmission server: %s", url)
         else:
             logging.warning(
@@ -1155,7 +1160,7 @@ class TransmissionClient(QMainWindow):
             return "Unknown"
 
     def set_timer_interval(self) -> None:
-        """Set timer interval based on window minimization state."""
+        """Set timer interval based on window minimization state and start if connected."""
         # Use appropriate interval based on window state
         interval = (
             self.minimized_refresh_interval_ms
@@ -1163,6 +1168,8 @@ class TransmissionClient(QMainWindow):
             else self.refresh_interval_ms
         )
         self.timer.setInterval(interval)
+        if self.is_connected and not self.timer.isActive():
+            self.timer.start()
         logger.info(
             f"Refresh interval set to {interval}ms ({'minimized' if self.windowState() & Qt.WindowMinimized else 'normal'} mode)"
         )
@@ -1394,7 +1401,7 @@ class TransmissionClient(QMainWindow):
                 self.current_password,
                 refresh_interval_sec,
                 minimized_interval_sec,
-                connection_timeout_sec,
+                _connection_timeout_sec,
                 self.credentials_remembered,
                 auto_connect_enabled,
             ) = dialog.get_settings()
@@ -1422,7 +1429,7 @@ class TransmissionClient(QMainWindow):
                 if self.is_connected:
                     self.set_timer_interval()
 
-    def _show_torrent_context_menu(self, position) -> None:
+    def _show_torrent_context_menu(self, position: "QPoint") -> None:  # type: ignore[name-defined]
         """Show right-click context menu for torrent actions."""
         # Get the torrent at the clicked position
         item = self.table.itemAt(position)

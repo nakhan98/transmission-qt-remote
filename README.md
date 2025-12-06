@@ -33,6 +33,16 @@ This is alpha software with limited functionality:
 
 **Full client capabilities are planned for future releases.**
 
+## Recent Updates
+
+### Version 0.2.0 (December 2025)
+- ✅ **Fixed macOS App Identity**: Proper display in Cmd-Tab and Dock
+- ✅ **Fixed Auto-Refresh**: Torrent data updates automatically (5s intervals)
+- ✅ **Enhanced CI**: Python 3.12 support with comprehensive type checking
+- 📊 **Test Suite**: 146 tests passing (69 unit + 76 integration + 1 fixture)
+
+See [CHANGELOG.md](CHANGELOG.md) for full technical details.
+
 ## Features
 
 - **Viewing & Monitoring:**
