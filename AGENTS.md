@@ -59,26 +59,6 @@ notes.txt (please do not do so without explicit prompting as your human
 collaborator may have not finished describing their thoughts there), *remove
 issues from there as they are codified in specs*.
 
-### Iterative Issue Processing
-When processing complex multi-issue bugs from notes.txt:
-- **One feature/bug spec per major bullet and its sub-items**: Create one
-  `.tmp/dev/tbd/` directory for them.
-- **Remove completed bullets**: Update notes.txt by removing major bullets once
-  all sub-items are processed to feature/bug specs.
-
-### Example: Complex Bug Breakdown
-For "connection problems with 401 errors and broken UI":
-```
-.tmp/dev/tbd/
-└── connection-bugs-fixes/           # One spec for all connection issues
-   ├── spec.md: "Fix all connection-related bugs"
-   └── todo.md:
-       ├── [ ] Fix 401 authentication errors
-       ├── [ ] Implement add server dialog
-       ├── [ ] Change default timeout to 5s
-       └── [ ] Fix duplicate button icons
-```
-
 Workflow guidelines:
 
 1. Draft new specs under `tbd/`.
@@ -141,6 +121,11 @@ Firstly please check README.md
 - Regularly run unit tests to ensure functionality has not been compromised
   during feature development and bug fixing.
 - For new feature try to create appropriate unit and/or integration tests.
+
+## AI Agent Guidelines
+- In interactive chat sessions with your human collaborator:
+    - Try to keep your message relatively short to promote ease of conversation.
+    - Try to address one issue at a time.
 
 ### Other
 - A copy of the the [Transmission RPC spec](https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md)
