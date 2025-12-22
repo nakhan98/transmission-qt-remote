@@ -37,6 +37,7 @@ class SystemTrayManager:
 
         # Create tray icon
         self.tray_icon = QSystemTrayIcon(self.parent)
+        assert self.tray_icon is not None  # Type guard for type checker
 
         # Set tray icon (use application icon if available)
         if hasattr(self.parent, "windowIcon") and not self.parent.windowIcon().isNull():
@@ -88,6 +89,7 @@ class SystemTrayManager:
             return
 
         self.tray_menu = QMenu()
+        assert self.tray_menu is not None  # Type guard for type checker
 
         # Show/Hide action
         show_hide_action = self.tray_menu.addAction("Show/Hide")

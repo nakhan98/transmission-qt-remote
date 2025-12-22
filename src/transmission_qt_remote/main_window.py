@@ -218,6 +218,11 @@ class TransmissionClient(QMainWindow):
         self.connection_manager.connected.connect(self._on_connected)
         self.connection_manager.disconnected.connect(self._on_disconnected)
         self.connection_manager.connection_failed.connect(self._on_connection_failed)
+
+        # Menu bar signals
+        self.menu_bar_manager.connection_settings_requested.connect(
+            self.open_connection_settings
+        )
         self.menu_bar_manager.torrent_details_requested.connect(
             self._show_torrent_details
         )
@@ -276,8 +281,7 @@ class TransmissionClient(QMainWindow):
 
     def _on_theme_changed(self, theme: str) -> None:
         """Handle theme change."""
-        # TODO: Implement theme switching
-        logger.info(f"Theme changed to: {theme}")
+        self.set_theme(theme)
 
     def _on_torrent_double_clicked(self, torrent_id: int) -> None:
         """Handle torrent double-click."""
@@ -547,6 +551,7 @@ class TransmissionClient(QMainWindow):
     def set_theme(self, theme: str) -> None:
         """Set application theme."""
         self.current_theme = theme
+        self.menu_bar_manager.set_current_theme(theme)
         self._apply_theme(theme)
 
     def _apply_theme(self, theme: str) -> None:

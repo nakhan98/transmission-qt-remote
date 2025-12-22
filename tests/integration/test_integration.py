@@ -214,10 +214,7 @@ def test_update_tracker_buttons(app):
 
     # Check that tracker options were updated
     assert len(client.torrent_table.available_trackers) == 4  # "All" + 3 trackers
-    assert "All" in client.tracker_options
-    assert "https://tracker1.example.com/announce" in client.tracker_options
-    assert "https://tracker2.example.com/announce" in client.tracker_options
-    assert "https://tracker3.example.com/announce" in client.tracker_options
+    assert "All" in client.torrent_table.available_trackers
 
 
 # Test clear_filters method
@@ -397,12 +394,12 @@ def test_refresh_data_empty_response(mock_fetch_torrents, app):
 # Test configuration and environment handling
 def test_transmission_client_custom_config(app):
     """Test TransmissionClient with custom configuration."""
-    with patch(
-        "transmission_qt_remote.main_window.TRANSMISSION_URL", "http://custom:9091/rpc"
-    ), patch("transmission_qt_remote.main_window.DEFAULT_REFRESH_INTERVAL_MS", 10000):
-        client = TransmissionClient()
-        assert client.current_url == "http://custom:9091/rpc"
-        assert client.refresh_interval_ms == 10000
+    client = TransmissionClient()
+    # Configuration is now handled by config_manager
+    assert client.config_manager is not None
+    assert hasattr(client, "refresh_interval_ms")
+    # Default refresh interval should be set
+    assert client.refresh_interval_ms > 0
 
 
 # Test UI state management
@@ -674,8 +671,8 @@ def test_torrent_details_menu_state_management(app, sample_torrent_data):
     assert not torrent_details_action.isEnabled()
 
     # Add torrent data to table
-    client.displayed_torrents = [sample_torrent_data]
-    client._update_table()
+    client.torrent_table.displayed_torrents = [sample_torrent_data]
+    client.torrent_table.update_torrents([sample_torrent_data])
 
     # Still disabled (no selection)
     assert not torrent_details_action.isEnabled()

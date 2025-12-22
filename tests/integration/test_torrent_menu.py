@@ -263,6 +263,11 @@ def test_torrent_menu_actions_trigger_methods(app):
     """Test that torrent menu actions trigger the correct methods."""
     client = TransmissionClient()
 
+    # Initialize api_client manually since we're not connecting
+    from transmission_qt_remote.api import TransmissionAPIClient
+
+    client.api_client = TransmissionAPIClient("http://test:9091/rpc", None)
+
     # Mock torrent data
     mock_torrent = {
         "id": 1,
