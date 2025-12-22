@@ -40,9 +40,9 @@ if _has_qt:
         TorrentDetailDialog,  # type: ignore  # noqa: F401 - re-exported for backward compatibility
     )
     from .main_window import (  # type: ignore  # noqa: F401 - re-exported for backward compatibility
-        TrackerButton,  # type: ignore
         TransmissionClient,
     )
+    from .models import TrackerButton  # type: ignore
 else:
     TorrentDetailDialog = None
     TrackerButton = None

@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from PySide6.QtCore import Qt
 
+from transmission_qt_remote.api import TransmissionAPIClient
 from transmission_qt_remote.transmission_client import (
     TorrentDetailDialog,
     TrackerButton,
@@ -92,25 +93,28 @@ def test_transmission_client_init(app):
 
 
 # Test the refresh_data method
-@patch.object(TransmissionClient, "fetch_torrents")
+@patch("transmission_qt_remote.api.TransmissionAPIClient.fetch_torrents")
 def test_refresh_data(mock_fetch_torrents, app, sample_torrent_data):
     """Test table data refresh functionality."""
     # Given: Mocked torrent fetching and connected client
     mock_fetch_torrents.return_value = [sample_torrent_data]
 
     client = TransmissionClient()
-    client.is_connected = True  # Simulate connected state
+    client.connection_manager._is_connected = True  # Simulate connected state
+    client.api_client = client.connection_manager._api_client = TransmissionAPIClient(
+        "http://test", "user", "pass"
+    )  # Create API client
 
     # When: Refreshing data
     client.refresh_data()
 
     # Then: Check displayed_torrents was set correctly
-    assert len(client.displayed_torrents) == 1
-    assert client.displayed_torrents[0]["name"] == "Test Torrent"
+    assert len(client.torrent_table.displayed_torrents) == 1
+    assert client.torrent_table.displayed_torrents[0]["name"] == "Test Torrent"
 
     # And: Check table was updated correctly
-    assert client.table.rowCount() == 1
-    assert client.table.item(0, 0).text() == "Test Torrent"
+    assert client.torrent_table.rowCount() == 1
+    assert client.torrent_table.item(0, 0).text() == "Test Torrent"
 
 
 # Test toggle_column method
@@ -118,18 +122,18 @@ def test_toggle_column(app):
     """Test toggling column visibility."""
     # Given: A client with all columns initially visible
     client = TransmissionClient()
-    for col_name in client.visible_columns:
-        assert client.visible_columns[col_name] is True
+    for col_name in client.torrent_table.visible_columns:
+        assert client.torrent_table.visible_columns[col_name] is True
 
     # When: Toggling a column to be invisible
-    client.toggle_column("Torrent Name", False)
+    client.torrent_table.toggle_column_visibility("Torrent Name", False)
     # Then: Column should be marked as not visible
-    assert client.visible_columns["Torrent Name"] is False
+    assert client.torrent_table.visible_columns["Torrent Name"] is False
 
     # When: Toggling it back to visible
-    client.toggle_column("Torrent Name", True)
+    client.torrent_table.toggle_column_visibility("Torrent Name", True)
     # Then: Column should be marked as visible again
-    assert client.visible_columns["Torrent Name"] is True
+    assert client.torrent_table.visible_columns["Torrent Name"] is True
 
 
 # Test status bar shows disconnected when not connected
@@ -139,29 +143,27 @@ def test_status_bar_disconnected(app):
     client = TransmissionClient()
     # When: Checking the initial connection state
     # Then: Status bar should show "Disconnected"
-    assert client.is_connected is False
+    assert not client.connection_manager.is_connected
     assert client.status_label.text() == "Disconnected"
 
 
-# Test status bar shows last refresh when connected but no refresh
 def test_status_bar_connected_no_refresh(app):
     """Test that status bar shows 'Last refresh: --:--:--' when connected but no refresh."""
     # Given: A TransmissionClient
     client = TransmissionClient()
     # When: Simulating a connection without refresh
-    client.is_connected = True
+    client.connection_manager._is_connected = True
     client._update_status_label()
     # Then: Status bar should show "Last refresh: --:--:--"
     assert client.status_label.text() == "Last refresh: --:--:--"
 
 
-# Test status bar shows refresh time when connected and refreshed
 def test_status_bar_connected_with_refresh(app):
     """Test that status bar shows actual time when connected and refreshed."""
     # Given: A TransmissionClient
     client = TransmissionClient()
     # When: Simulating a connection with a refresh at 14:30:25
-    client.is_connected = True
+    client.connection_manager._is_connected = True
     client._update_status_label("14:30:25")
     # Then: Status bar should show "Last refresh: 14:30:25"
     assert client.status_label.text() == "Last refresh: 14:30:25"
@@ -189,9 +191,6 @@ def test_update_tracker_buttons(app):
     """Test updating tracker filter buttons."""
     client = TransmissionClient()
 
-    # Clear any existing buttons first
-    client.tracker_buttons = {}
-
     # Mock torrent data with tracker stats
     torrents = [
         {
@@ -211,10 +210,10 @@ def test_update_tracker_buttons(app):
     ]
 
     # Update tracker buttons
-    client.update_tracker_buttons(torrents)
+    client.torrent_table.update_tracker_options(torrents)
 
     # Check that tracker options were updated
-    assert len(client.tracker_options) == 4  # "All" + 3 trackers
+    assert len(client.torrent_table.available_trackers) == 4  # "All" + 3 trackers
     assert "All" in client.tracker_options
     assert "https://tracker1.example.com/announce" in client.tracker_options
     assert "https://tracker2.example.com/announce" in client.tracker_options
@@ -253,26 +252,13 @@ def test_select_tracker(app):
     """Test tracker selection functionality."""
     client = TransmissionClient()
 
-    # Mock the filter_table method to avoid side effects
-    original_filter_table = client.filter_table
-    client.filter_table = MagicMock()
+    # Test selecting a tracker
+    client.select_tracker("example.com")
+    assert client.torrent_table.active_tracker == "example.com"
 
-    try:
-        # Test selecting a tracker
-        client.select_tracker("example.com")
-        assert client.active_tracker == "example.com"
-        client.filter_table.assert_called_once()
-
-        # Reset mock
-        client.filter_table.reset_mock()
-
-        # Test selecting "All"
-        client.select_tracker("All")
-        assert client.active_tracker is None
-        client.filter_table.assert_called_once()
-    finally:
-        # Restore original method to avoid affecting other tests
-        client.filter_table = original_filter_table
+    # Test selecting "All"
+    client.select_tracker("All")
+    assert client.torrent_table.active_tracker is None
 
 
 # Test TorrentDetailDialog initialization
@@ -385,17 +371,17 @@ def test_refresh_data_network_error(app):
 
     # Mock requests.post to raise ConnectionError
     with patch(
-        "transmission_qt_remote.main_window.requests.post",
+        "transmission_qt_remote.api.transmission_api.requests.post",
         side_effect=ConnectionError("Network is unreachable"),
     ):
         # Should not crash, should handle the error gracefully
         client.refresh_data()
 
     # Should still have empty table since no previous data and error occurred
-    assert client.table.rowCount() == 0
+    assert client.torrent_table.rowCount() == 0
 
 
-@patch.object(TransmissionClient, "fetch_torrents")
+@patch("transmission_qt_remote.api.TransmissionAPIClient.fetch_torrents")
 def test_refresh_data_empty_response(mock_fetch_torrents, app):
     """Test handling of empty response from server."""
     mock_fetch_torrents.return_value = []
@@ -404,8 +390,8 @@ def test_refresh_data_empty_response(mock_fetch_torrents, app):
     client.refresh_data()
 
     # Should have empty table
-    assert client.table.rowCount() == 0
-    assert len(client.displayed_torrents) == 0
+    assert client.torrent_table.rowCount() == 0
+    assert len(client.torrent_table.displayed_torrents) == 0
 
 
 # Test configuration and environment handling
@@ -695,19 +681,19 @@ def test_torrent_details_menu_state_management(app, sample_torrent_data):
     assert not torrent_details_action.isEnabled()
 
     # Select a row
-    client.table.selectRow(0)
+    client.torrent_table.selectRow(0)
 
     # Should now be enabled
     assert torrent_details_action.isEnabled()
 
     # Clear selection
-    client.table.clearSelection()
+    client.torrent_table.clearSelection()
 
     # Should be disabled again
     assert not torrent_details_action.isEnabled()
 
     # Select multiple rows
-    client.table.selectRow(0)
+    client.torrent_table.selectRow(0)
     # In a real scenario we'd add more rows, but for this test we'll simulate
     # Since we only have one row, selecting it should enable the action
     assert torrent_details_action.isEnabled()
@@ -744,9 +730,9 @@ def test_menu_actions_functionality(app, sample_torrent_data):
     torrent_details_action = view_menu.actions()[0]
 
     # Add torrent and select it
-    client.displayed_torrents = [sample_torrent_data]
-    client._update_table()
-    client.table.selectRow(0)
+    client.torrent_table.displayed_torrents = [sample_torrent_data]
+    client.torrent_table.update_torrents([sample_torrent_data])
+    client.torrent_table.selectRow(0)
 
     # Mock the _show_torrent_details method
     with patch.object(client, "_show_torrent_details") as mock_show_details:

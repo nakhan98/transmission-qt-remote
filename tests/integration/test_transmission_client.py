@@ -63,31 +63,31 @@ def test_fetch_torrents(mock_post, app, sample_torrent_data):
     mock_post.return_value = mock_response
 
     client = TransmissionClient()
-    torrents = client.fetch_torrents()
+    torrents = client.api_client.fetch_torrents()
 
     assert len(torrents) == 1
     assert torrents[0]["name"] == "Test Torrent"
 
 
 # Test the refresh_data method
-@patch.object(TransmissionClient, "fetch_torrents")
+@patch("transmission_qt_remote.api.TransmissionAPIClient.fetch_torrents")
 def test_refresh_data(mock_fetch_torrents, app, sample_torrent_data):
     # Given: A client with mocked torrent fetching and connected state
     mock_fetch_torrents.return_value = [sample_torrent_data]
 
     client = TransmissionClient()
-    client.is_connected = True  # Simulate connected state
+    client.connection_manager._is_connected = True  # Simulate connected state
 
     # When: Refreshing data
     client.refresh_data()
 
     # Then: Check displayed_torrents was set correctly
-    assert len(client.displayed_torrents) == 1
-    assert client.displayed_torrents[0]["name"] == "Test Torrent"
+    assert len(client.torrent_table.displayed_torrents) == 1
+    assert client.torrent_table.displayed_torrents[0]["name"] == "Test Torrent"
 
     # Check table was updated correctly
-    assert client.table.rowCount() == 1
-    assert client.table.item(0, 0).text() == "Test Torrent"
+    assert client.torrent_table.rowCount() == 1
+    assert client.torrent_table.item(0, 0).text() == "Test Torrent"
 
 
 # Test get_status_text method
@@ -102,16 +102,16 @@ def test_get_status_text(app):
 def test_toggle_column(app):
     client = TransmissionClient()
     # Initially, all columns should be visible
-    for col_name in client.visible_columns:
-        assert client.visible_columns[col_name] is True
+    for col_name in client.torrent_table.visible_columns:
+        assert client.torrent_table.visible_columns[col_name] is True
 
     # Toggle a column to be invisible
-    client.toggle_column("Torrent Name", False)
-    assert client.visible_columns["Torrent Name"] is False
+    client.torrent_table.toggle_column("Torrent Name", False)
+    assert client.torrent_table.visible_columns["Torrent Name"] is False
 
     # Toggle it back to visible
-    client.toggle_column("Torrent Name", True)
-    assert client.visible_columns["Torrent Name"] is True
+    client.torrent_table.toggle_column("Torrent Name", True)
+    assert client.torrent_table.visible_columns["Torrent Name"] is True
 
 
 # Test TrackerButton
@@ -273,61 +273,51 @@ def test_filter_table(app, sample_torrent_data):
         client = TransmissionClient()
 
         # Given: Client with displayed torrents and populated table
-        client.displayed_torrents = [sample_data_with_tracker]
-        client._update_table()
+        client.torrent_table.displayed_torrents = [sample_data_with_tracker]
+        client.torrent_table.update_torrents([sample_data_with_tracker])
 
         # Text search tests
 
         # When: Setting search term that matches torrent name
-        client.search_box.setText("test")
-        client.active_trackers = []  # Clear tracker filters
-        client.filter_table()
+        client.torrent_table.filter_by_text("test")
         # Then: Row should not be hidden
-        assert not client.table.isRowHidden(0)
+        assert not client.torrent_table.isRowHidden(0)
 
         # When: Setting search term that doesn't match
-        client.search_box.setText("nonexistent")
-        client.active_trackers = []  # Clear tracker filters
-        client.filter_table()
+        client.torrent_table.filter_by_text("nonexistent")
         # Then: Row should be hidden
-        assert client.table.isRowHidden(0)
+        assert client.torrent_table.isRowHidden(0)
 
         # Tracker filter tests
 
         # Given: Search reset
-        client.search_box.setText("")
+        client.torrent_table.filter_by_text("")
 
         # When: Setting active tracker that matches torrent's tracker
-        client.active_tracker = "tracker1.example.com"
-        client.filter_table()
+        client.torrent_table.filter_by_tracker("tracker1.example.com")
         # Then: Row should not be hidden
-        assert not client.table.isRowHidden(0)
+        assert not client.torrent_table.isRowHidden(0)
 
         # When: Setting active tracker that doesn't match
-        client.active_tracker = "nonexistent.tracker"
-        client.filter_table()
+        client.torrent_table.filter_by_tracker("nonexistent.tracker")
         # Then: Row should be hidden
-        assert client.table.isRowHidden(0)
+        assert client.torrent_table.isRowHidden(0)
 
         # Combined filter tests
 
         # When: Setting both matching search and matching tracker
-        client.search_box.setText("test")
-        client.active_tracker = "tracker2.example.com"
-        client.filter_table()
+        client.torrent_table.filter_by_text("test")
+        client.torrent_table.filter_by_tracker("tracker2.example.com")
         # Then: Row should not be hidden
-        assert not client.table.isRowHidden(0)
+        assert not client.torrent_table.isRowHidden(0)
 
         # When: Setting matching search but non-matching tracker
-        client.search_box.setText("test")
-        client.active_tracker = "nonexistent.tracker"
-        client.filter_table()
-        assert client.table.isRowHidden(0)
+        client.torrent_table.filter_by_text("test")
+        client.torrent_table.filter_by_tracker("nonexistent.tracker")
+        assert client.torrent_table.isRowHidden(0)
 
         # Test clearing filters
-        client.clear_filters()
-        assert client.search_box.text() == ""
-        assert client.active_tracker is None
+        client.torrent_table.clear_filters()
 
 
 # Test on_torrent_double_clicked method
@@ -339,7 +329,7 @@ def test_on_torrent_double_clicked(mock_exec, app, sample_torrent_data):
         client = TransmissionClient()
 
         # Set up displayed torrents
-        client.displayed_torrents = [sample_torrent_data]
+        client.torrent_table.displayed_torrents = [sample_torrent_data]
 
         # Create a mock index
         mock_index = MagicMock()
@@ -401,7 +391,7 @@ def test_set_file_priority(mock_post, app):
     mock_post.return_value = mock_response
 
     # Test setting high priority
-    result = client.set_file_priority(1, [0, 1], 1)
+    result = client.api_client.set_file_priority(1, [0, 1], 1)
     assert result is True
 
     # Check the request was made correctly
@@ -424,7 +414,7 @@ def test_set_file_wanted(mock_post, app):
     mock_post.return_value = mock_response
 
     # Test setting files as wanted
-    result = client.set_file_wanted(1, [0, 1], True)
+    result = client.api_client.set_file_wanted(1, [0, 1], True)
     assert result is True
 
     # Check the request was made correctly
@@ -448,7 +438,7 @@ def test_fetch_torrent_details(mock_post, app, sample_torrent_data):
     mock_post.return_value = mock_response
 
     # Test fetching details
-    result = client.fetch_torrent_details(1)
+    result = client.api_client.fetch_torrent_details(1)
     assert result == sample_torrent_data
 
     # Check the request was made correctly

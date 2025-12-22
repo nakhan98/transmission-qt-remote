@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-12-22
+
+### Added
+- **Major Refactoring**: Split monolithic 1,618-line `main_window.py` into 8 focused modules
+  - `api/transmission_api.py` (407 lines) - HTTP RPC communication with Transmission
+  - `connection/connection_manager.py` (331 lines) - Connection state and credentials
+  - `models/torrent_models.py` (59 lines) - Data models and enums
+  - `ui/menu_bar.py` (270 lines) - Application menu bar management
+  - `ui/system_tray.py` (121 lines) - System tray functionality
+  - `ui/toolbar.py` (177 lines) - Torrent action toolbar
+  - `ui/torrent_table.py` (362 lines) - Table widget with filtering and display
+- Comprehensive unit test coverage for all new modules (158 tests passing)
+- Improved code maintainability with clear separation of concerns
+- Coordinator pattern implementation in main window
+
+### Changed
+- `main_window.py` reduced from 1,618 to 555 lines (66% reduction)
+- All integration tests updated to work with refactored component structure
+- Enhanced type checking coverage with proper Optional handling
+
+### Fixed
+- Resolved all type checking errors (0 errors, 0 warnings)
+- Fixed integration test collection and execution issues
+- Improved signal connection patterns for Qt components
+
+### Technical Details
+
+#### Architecture Changes
+- **Coordinator Pattern**: Main window now orchestrates specialized managers
+- **Signal-Based Communication**: Components communicate via Qt signals
+- **Dependency Injection**: Managers receive dependencies through constructor injection
+- **Single Responsibility**: Each module handles one aspect of functionality
+
+#### Module Breakdown
+- **API Layer**: Clean HTTP interface with automatic session management
+- **Connection Layer**: Credential management and connection state handling
+- **Model Layer**: Type-safe data structures for torrent information
+- **UI Layer**: Modular UI components with proper separation
+
 ## [0.2.0] - 2025-12-05
 
 ### Added
