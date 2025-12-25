@@ -50,7 +50,7 @@ test:
 
 # Run only unit tests
 test_unit:
-	$(PYTHON) -m pytest tests/unit/ -v
+	QT_QPA_PLATFORM=offscreen $(PYTHON) -m pytest tests/unit/ -v
 
 # Run only integration tests (use offscreen platform like Docker)
 test_integration:
