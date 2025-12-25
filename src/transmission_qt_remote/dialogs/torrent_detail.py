@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from PySide6.QtCore import QPoint, Qt
 
 if TYPE_CHECKING:
-    from ..main_window import TorrentStatus
+    from ..models.torrent_models import TorrentStatus
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..main_window import TorrentStatus  # type: ignore[import-cycle]
+from ..models import TorrentStatus
 from .utils import TooltipDelegate, get_country_info
 
 logger = logging.getLogger(__name__)

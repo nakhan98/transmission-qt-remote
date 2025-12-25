@@ -119,29 +119,23 @@ def test_torrent_menu_actions_enable_with_selection(app):
         "wanted": [],
     }
 
-    client.displayed_torrents = [mock_torrent]
-    client.table.setRowCount(1)
-
-    # Create a mock item for the table
-    from PySide6.QtWidgets import QTableWidgetItem
-
-    item = QTableWidgetItem("Test Torrent")
-    client.table.setItem(0, 0, item)
+    client.torrent_table.displayed_torrents = [mock_torrent]
+    client.torrent_table.update_torrents([mock_torrent])
 
     # Select the first row
-    client.table.selectRow(0)
+    client.torrent_table.selectRow(0)
 
     # Manually trigger selection change by emitting the signal
-    client.table.itemSelectionChanged.emit()
+    client.torrent_table.itemSelectionChanged.emit()
 
     # Process events to ensure signal is handled
     QTest.qWait(100)
 
     # Manually call selection handler to ensure it runs
-    client._on_table_selection_changed()
+    # Note: selection change is handled via signals now
 
     # Debug: check if torrent menu actions exist
-    assert hasattr(client, "torrent_start_action"), "torrent_start_action should exist"
+    # Note: actions are now in menu_bar_manager
 
     # Get torrent menu actions
     menubar = client.menuBar()
@@ -198,26 +192,20 @@ def test_torrent_menu_actions_for_active_torrent(app):
         "wanted": [],
     }
 
-    client.displayed_torrents = [mock_torrent]
-    client.table.setRowCount(1)
-
-    # Create a mock item for the table
-    from PySide6.QtWidgets import QTableWidgetItem
-
-    item = QTableWidgetItem("Test Torrent")
-    client.table.setItem(0, 0, item)
+    client.torrent_table.displayed_torrents = [mock_torrent]
+    client.torrent_table.update_torrents([mock_torrent])
 
     # Select the first row
-    client.table.selectRow(0)
+    client.torrent_table.selectRow(0)
 
     # Manually trigger selection change by emitting the signal
-    client.table.itemSelectionChanged.emit()
+    client.torrent_table.itemSelectionChanged.emit()
 
     # Process events to ensure signal is handled
     QTest.qWait(100)
 
     # Manually call selection handler to ensure it runs
-    client._on_table_selection_changed()
+    # Note: selection change is handled via signals now
 
     # Get torrent menu actions
     menubar = client.menuBar()
@@ -275,6 +263,11 @@ def test_torrent_menu_actions_trigger_methods(app):
     """Test that torrent menu actions trigger the correct methods."""
     client = TransmissionClient()
 
+    # Initialize api_client manually since we're not connecting
+    from transmission_qt_remote.api import TransmissionAPIClient
+
+    client.api_client = TransmissionAPIClient("http://test:9091/rpc", None)
+
     # Mock torrent data
     mock_torrent = {
         "id": 1,
@@ -304,26 +297,20 @@ def test_torrent_menu_actions_trigger_methods(app):
         "wanted": [],
     }
 
-    client.displayed_torrents = [mock_torrent]
-    client.table.setRowCount(1)
-
-    # Create a mock item for the table
-    from PySide6.QtWidgets import QTableWidgetItem
-
-    item = QTableWidgetItem("Test Torrent")
-    client.table.setItem(0, 0, item)
+    client.torrent_table.displayed_torrents = [mock_torrent]
+    client.torrent_table.update_torrents([mock_torrent])
 
     # Select the first row
-    client.table.selectRow(0)
+    client.torrent_table.selectRow(0)
 
     # Manually trigger selection change by emitting the signal
-    client.table.itemSelectionChanged.emit()
+    client.torrent_table.itemSelectionChanged.emit()
 
     # Process events to ensure signal is handled
     QTest.qWait(100)
 
     # Manually call selection handler to ensure it runs
-    client._on_table_selection_changed()
+    # Note: selection change is handled via signals now
 
     # Get torrent menu actions
     menubar = client.menuBar()
@@ -337,7 +324,7 @@ def test_torrent_menu_actions_trigger_methods(app):
     actions = torrent_menu.actions()
 
     # Mock the start_torrent method to track calls
-    original_start = client.start_torrent
+    original_start = client.api_client.start_torrent
     start_called = False
     start_torrent_id = None
 
@@ -346,7 +333,7 @@ def test_torrent_menu_actions_trigger_methods(app):
         start_called = True
         start_torrent_id = torrent_id
 
-    client.start_torrent = mock_start_torrent
+    client.api_client.start_torrent = mock_start_torrent
 
     # Trigger Start action
     actions[0].trigger()
@@ -358,4 +345,4 @@ def test_torrent_menu_actions_trigger_methods(app):
     )
 
     # Restore original method
-    client.start_torrent = original_start
+    client.api_client.start_torrent = original_start

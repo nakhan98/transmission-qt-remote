@@ -29,11 +29,15 @@ def test_system_tray_initialization(app):
     if tray_available:
         # When: System tray is available on the platform
         # Then: Tray icon should be initialized and visible
-        assert hasattr(client, "tray_icon"), (
+        assert hasattr(client.system_tray_manager, "tray_icon"), (
             "Tray icon should exist when system tray is available"
         )
-        assert client.tray_icon is not None, "Tray icon should not be None"
-        assert client.tray_icon.isVisible(), "Tray icon should be visible"
+        assert client.system_tray_manager.tray_icon is not None, (
+            "Tray icon should not be None"
+        )
+        assert client.system_tray_manager.tray_icon.isVisible(), (
+            "Tray icon should be visible"
+        )
     else:
         # When: System tray is not available on the platform
         # Then: Tray initialization should be skipped gracefully
@@ -49,11 +53,14 @@ def test_system_tray_icon_properties(app):
     if hasattr(client, "tray_icon"):
         # When: Checking the initial tray icon properties
         # Then: Tooltip should contain application name and disconnected status
-        assert "Transmission QT Remote" in client.tray_icon.toolTip()
-        assert "Disconnected" in client.tray_icon.toolTip()
+        assert (
+            "Transmission QT Remote" in client.system_tray_manager.tray_icon.toolTip()
+        )
+        assert "Disconnected" in client.system_tray_manager.tray_icon.toolTip()
 
-        # Then: Tray icon should have a valid icon set
-        assert not client.tray_icon.icon().isNull(), "Tray icon should have an icon set"
+        assert not client.system_tray_manager.tray_icon.icon().isNull(), (
+            "Tray icon should have an icon set"
+        )
 
 
 def test_system_tray_menu(app):
@@ -63,7 +70,7 @@ def test_system_tray_menu(app):
 
     if hasattr(client, "tray_icon"):
         # When: Accessing the tray icon context menu
-        menu = client.tray_icon.contextMenu()
+        menu = client.system_tray_manager.tray_icon.contextMenu()
 
         # Then: Context menu should exist
         assert menu is not None, "Tray icon should have a context menu"
@@ -92,7 +99,7 @@ def test_system_tray_tooltip_updates(app):
     if hasattr(client, "tray_icon"):
         # When: Application starts (initial state)
         # Then: Tray tooltip should show disconnected status
-        assert "Disconnected" in client.tray_icon.toolTip()
+        assert "Disconnected" in client.system_tray_manager.tray_icon.toolTip()
 
         # When: Simulating a connection to the server
         client.is_connected = True
@@ -106,7 +113,7 @@ def test_system_tray_tooltip_updates(app):
         client._update_status_label()
 
         # Then: Tray tooltip should show disconnected status again
-        assert "Disconnected" in client.tray_icon.toolTip()
+        assert "Disconnected" in client.system_tray_manager.tray_icon.toolTip()
 
 
 def test_system_tray_toggle_visibility(app):
@@ -201,4 +208,4 @@ def test_tray_tooltip_update_method(app):
         client._update_tray_tooltip(test_tooltip)
 
         # Then: Tray tooltip should be updated to the new message
-        assert client.tray_icon.toolTip() == test_tooltip
+        assert client.system_tray_manager.tray_icon.toolTip() == test_tooltip

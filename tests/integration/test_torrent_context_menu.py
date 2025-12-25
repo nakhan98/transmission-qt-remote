@@ -12,13 +12,13 @@ def test_torrent_context_menu_stopped_torrent(app):
         "name": "Test Torrent",
         "status": 0,  # Stopped
     }
-    client.displayed_torrents = [stopped_torrent]
-    client._update_table()  # Populate table
+    client.torrent_table.displayed_torrents = [stopped_torrent]
+    client.torrent_table.update_torrents([stopped_torrent])  # Populate table
 
     # When: Right-clicking on the torrent
     # Note: This test verifies the menu creation logic
     # The actual menu display would require Qt event loop
-    torrent = client.displayed_torrents[0]
+    torrent = client.torrent_table.displayed_torrents[0]
     torrent_status = torrent.get("status", 0)
 
     # Then: Should show start actions for stopped torrent
@@ -36,11 +36,11 @@ def test_torrent_context_menu_active_torrent(app):
         "name": "Active Torrent",
         "status": 3,  # Downloading
     }
-    client.displayed_torrents = [active_torrent]
-    client._update_table()  # Populate table
+    client.torrent_table.displayed_torrents = [active_torrent]
+    client.torrent_table.update_torrents([active_torrent])  # Populate table
 
     # When: Checking torrent status for menu logic
-    torrent = client.displayed_torrents[0]
+    torrent = client.torrent_table.displayed_torrents[0]
     torrent_status = torrent.get("status", 0)
 
     # Then: Should show pause action for active torrent

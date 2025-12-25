@@ -97,20 +97,11 @@ def test_torrent_toolbar_enable_with_selection(app):
         "wanted": [],
     }
 
-    client.displayed_torrents = [mock_torrent]
-    client.table.setRowCount(1)
-
-    # Create a mock item for table
-    from PySide6.QtWidgets import QTableWidgetItem
-
-    item = QTableWidgetItem("Test Torrent")
-    client.table.setItem(0, 0, item)
+    client.torrent_table.displayed_torrents = [mock_torrent]
+    client.torrent_table.update_torrents([mock_torrent])
 
     # Select the first row
-    client.table.selectRow(0)
-
-    # Manually trigger selection change
-    client._on_table_selection_changed()
+    client.torrent_table.selectRow(0)
 
     # Check toolbar actions
     actions = client.torrent_toolbar.actions()
@@ -159,20 +150,14 @@ def test_torrent_toolbar_for_active_torrent(app):
         "wanted": [],
     }
 
-    client.displayed_torrents = [mock_torrent]
-    client.table.setRowCount(1)
-
-    # Create a mock item for table
-    from PySide6.QtWidgets import QTableWidgetItem
-
-    item = QTableWidgetItem("Test Torrent")
-    client.table.setItem(0, 0, item)
+    client.torrent_table.displayed_torrents = [mock_torrent]
+    client.torrent_table.update_torrents([mock_torrent])
 
     # Select the first row
-    client.table.selectRow(0)
+    client.torrent_table.selectRow(0)
 
     # Manually trigger selection change
-    client._on_table_selection_changed()
+    # Note: selection change is handled via signals now
 
     # Check toolbar actions
     actions = client.torrent_toolbar.actions()
@@ -214,6 +199,11 @@ def test_torrent_toolbar_trigger_methods(app):
     """Test that toolbar actions trigger correct methods."""
     client = TransmissionClient()
 
+    # Initialize api_client manually since we're not connecting
+    from transmission_qt_remote.api import TransmissionAPIClient
+
+    client.api_client = TransmissionAPIClient("http://test:9091/rpc", None)
+
     # Mock torrent data
     mock_torrent = {
         "id": 1,
@@ -243,24 +233,20 @@ def test_torrent_toolbar_trigger_methods(app):
         "wanted": [],
     }
 
-    client.displayed_torrents = [mock_torrent]
-    client.table.setRowCount(1)
-
-    # Create a mock item for table
-    from PySide6.QtWidgets import QTableWidgetItem
-
-    item = QTableWidgetItem("Test Torrent")
-    client.table.setItem(0, 0, item)
+    client.torrent_table.displayed_torrents = [mock_torrent]
+    client.torrent_table.update_torrents([mock_torrent])
 
     # Select the first row
-    client.table.selectRow(0)
-    client._on_table_selection_changed()
+    client.torrent_table.selectRow(0)
+
+    # Manually trigger selection change
+    # Note: selection change is handled via signals now
 
     # Get toolbar actions
     actions = client.torrent_toolbar.actions()
 
     # Mock the start_torrent method to track calls
-    original_start = client.start_torrent
+    original_start = client.api_client.start_torrent
     start_called = False
     start_torrent_id = None
 
@@ -269,7 +255,7 @@ def test_torrent_toolbar_trigger_methods(app):
         start_called = True
         start_torrent_id = torrent_id
 
-    client.start_torrent = mock_start_torrent
+    client.api_client.start_torrent = mock_start_torrent
 
     # Trigger Start action (index 2, after Open and separator)
     actions[2].trigger()
@@ -281,4 +267,4 @@ def test_torrent_toolbar_trigger_methods(app):
     )
 
     # Restore original method
-    client.start_torrent = original_start
+    client.api_client.start_torrent = original_start
